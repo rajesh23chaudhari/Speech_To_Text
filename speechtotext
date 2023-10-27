@@ -1,1 +1,95 @@
 pip install SpeechRecognition
+pip install pyaudio
+pip install gTTS
+pip install pyttsx3
+
+
+
+import speech_recognition as sr
+import os
+import pyttsx3
+import webbrowser
+
+def main():
+    r = sr.Recognizer()
+
+    with sr.Microphone() as source:
+        r.adjust_for_ambient_noise(source)
+
+        print("Listening...")
+
+        while True:
+            audio = r.listen(source, timeout=3, phrase_time_limit=3)
+
+            print("Recognizing...")
+
+            try:
+                recognized_text = r.recognize_google(audio)
+                print("You said: " + recognized_text)
+
+                # Feedback: Speak the recognized text
+                speak(recognized_text)
+
+                # Execute actions based on recognized text
+                execute_command(recognized_text)
+
+            except sr.UnknownValueError:
+                print("Google Web Speech API could not understand audio")
+
+            except sr.RequestError as e:
+                print("Could not request results from Google Web Speech API; {0}".format(e))
+
+def speak(text):
+    engine = pyttsx3.init()
+    engine.say(text)
+    engine.runAndWait()
+
+def execute_command(text):
+    if "open" in text:
+        app_name = text.split("open")[1].strip()
+        open_app(app_name)
+    elif "settings" in text:
+        open_settings()
+    elif "shut down" in text:
+        shut_down()
+    elif "restart" in text:
+        restart()
+    elif "play a song" in text:
+        play_song()
+    elif "play YouTube" in text:
+        play_youtube_video()
+
+def open_app(app_name):
+    try:
+        os.system(f"start {app_name}")
+    except Exception as e:
+        print(f"Error opening the app: {e}")
+
+def open_settings():
+    try:
+        os.system("control /name Microsoft.System")
+    except Exception as e:
+        print(f"Error opening settings: {e}")
+
+def shut_down():
+    try:
+        os.system("shutdown /s /t 0")
+    except Exception as e:
+        print(f"Error shutting down: {e}")
+
+def restart():
+    try:
+        os.system("shutdown /r /t 0")
+    except Exception as e:
+        print(f"Error restarting: {e}")
+
+def play_song():
+    # Placeholder for playing a song
+    pass
+
+def play_youtube_video():
+    url = "https://www.youtube.com"  # Replace with the specific YouTube video URL
+    webbrowser.open(url)
+
+if __name__ == "__main__":
+    main()
